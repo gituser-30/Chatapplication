@@ -1,4 +1,4 @@
-const jwt = require("jsonwebtoken");
+import jwt from "jsonwebtoken";
 
 const protect = (req, res, next) => {
   let token;
@@ -13,15 +13,13 @@ const protect = (req, res, next) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.userId = decoded.id;
 
-      next();
+      return next();
     } catch (error) {
       return res.status(401).json({ message: "Not authorized" });
     }
   }
 
-  if (!token) {
-    return res.status(401).json({ message: "No token provided" });
-  }
+  return res.status(401).json({ message: "No token provided" });
 };
 
-module.exports = protect;
+export default protect;
