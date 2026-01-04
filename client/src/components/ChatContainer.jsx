@@ -205,20 +205,29 @@ const ChatContainer = ({ selectedUser, onClearChat, onBlockUser }) => {
      SOCKET SETUP
      ========================= */
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
+  const user = JSON.parse(localStorage.getItem("user"));
 
-    if (user?.id) {
-      socket.emit("join", user.id); // ✅ join personal room
-    }
+  if (user?.id) {
+    socket.emit("join", user.id);
+  }
 
-    socket.on("receiveMessage", (message) => {
+  const handleReceiveMessage = (message) => {
+    // ✅ only update if message belongs to current chat
+    if (
+      selectedUser &&
+      (message.sender === selectedUser._id ||
+        message.receiver === selectedUser._id)
+    ) {
       setMessages((prev) => [...prev, message]);
-    });
+    }
+  };
 
-    return () => {
-      socket.off("receiveMessage");
-    };
-  }, []);
+  socket.on("receiveMessage", handleReceiveMessage);
+
+  return () => {
+    socket.off("receiveMessage", handleReceiveMessage);
+  };
+}, [selectedUser]);
 
   /* =========================
      AUTO SCROLL
