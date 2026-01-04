@@ -48,18 +48,16 @@
 import axios from "axios";
 
 /**
- * API BASE URL
- * Local → localhost
- * Production → Render backend
+ * Backend API URL (IMPORTANT)
  */
 const API_BASE =
-  import.meta.env.PROD
-    ? "https://dbatuscholarhub-chatapp.onrender.com"
+  import.meta.env.MODE === "production"
+    ? "https://chatapplication-z7kn.onrender.com"
     : "http://localhost:5000";
 
 /* =========================
    GET USERS
-   ========================= */
+========================= */
 export const getUsers = async () => {
   const token = localStorage.getItem("token");
 
@@ -74,7 +72,7 @@ export const getUsers = async () => {
 
 /* =========================
    BLOCK USER
-   ========================= */
+========================= */
 export const blockUser = async (userId) => {
   const token = localStorage.getItem("token");
 
@@ -90,4 +88,5 @@ export const blockUser = async (userId) => {
 
   return response.data;
 };
+
 
