@@ -1,4 +1,6 @@
 const express = require("express");
+const path = require("path");
+
 const mongoose = require("mongoose");
 const cors = require("cors");
 const authRoutes = require("./routes/authRoutes");
@@ -24,6 +26,13 @@ app.get("/api/protected", protect, (req, res) => {
 });
 
 app.use("/api/auth",authRoutes);
+
+app.use(express.static(path.join(__dirname, "client", "dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
+});
+
 
 const PORT = process.env.PORT || 5000;
 const http = require("http");
