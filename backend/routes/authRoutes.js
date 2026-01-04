@@ -1,43 +1,46 @@
-const express = require("express");
-const bcrypt = require("bcryptjs");
-const User = require("../models/User.js");
-const jwt = require("jsonwebtoken");
+import express from "express";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
 
 const router = express.Router();
 
-// Registration
-router.post("/register",async (req,res)=>{
-    try {
-        const {name, email,password} =  req.body;
+/* ================= REGISTER ================= */
+router.post("/register", async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
 
-        const userExists = await User.findOne({email});
-        if(userExists){
-            return res.status(400).json({message:"User already exists"});
-        }
-
-        const salt = await bcrypt.genSalt(10);
-        const hashedpassword =  await bcrypt.hash(password,salt);
-
-        const user =  await User.create({
-            name,
-            email,
-            password: hashedpassword,
-        });
-
-        res.status(201).json({
-            message:"user registerd succcessfully",
-            user:{
-                id:user._id,
-                name: user.name,
-                email:user.email,
-            },
-        });
-    } catch (error) {
-        res.status(500).json({message:error.message})
+    // check if user exists
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ message: "User already exists" });
     }
+
+    // hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // create user
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+    });
+
+    res.status(201).json({
+      message: "User registered successfully",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 });
 
-// Login
+/* ================= LOGIN ================= */
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -54,7 +57,7 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
-    // generate token
+    // generate JWT
     const token = jwt.sign(
       { id: user._id },
       process.env.JWT_SECRET,
@@ -76,5 +79,4 @@ router.post("/login", async (req, res) => {
   }
 });
 
-
-module.exports = router;
+export default router;
