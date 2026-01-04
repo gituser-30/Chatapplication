@@ -74,7 +74,11 @@ const ChatContainer = ({ selectedUser, onClearChat, onBlockUser }) => {
 
     try {
       await sendMessage(selectedUser._id, newMessage);
-      socket.emit("sendMessage", messageData);
+      socket.emit("sendMessage", {
+  receiverId,
+  message: savedMessage,
+});
+
 
       setMessages((prev) => [...prev, messageData]);
       setNewMessage("");
