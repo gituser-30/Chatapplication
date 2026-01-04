@@ -187,6 +187,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import http from "http";
 import { Server } from "socket.io";
+import path from "path";
+import { fileURLToPath } from "url";
 
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
@@ -212,12 +214,16 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/messages", messageRoutes);
 
-// Serve React static files
 app.use(express.static(path.join(__dirname, "client", "dist")));
 
-// SPA fallback — Express v5 SAFE
+// 🔧 FIX __dirname for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// SPA fallback (Express v5 safe)
 app.use((req, res, next) => {
   if (req.method !== "GET") return next();
+  if (req.path.startsWith("/api")) return next();
 
   res.sendFile(
     path.resolve(__dirname, "client", "dist", "index.html")
