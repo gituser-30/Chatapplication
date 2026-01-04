@@ -143,21 +143,38 @@ const io = new Server(server, {
 
 let onlineUsers = new Set();
 
+// io.on("connection", (socket) => {
+//   socket.on("join", (userId) => {
+//     onlineUsers.add(userId);
+//     io.emit("onlineUsers", Array.from(onlineUsers));
+//   });
+
+//   socket.on("disconnect", () => {
+//     onlineUsers.forEach((id) => {
+//       if (io.sockets.adapter.rooms.get(id)?.has(socket.id)) {
+//         onlineUsers.delete(id);
+//       }
+//     });
+//     io.emit("onlineUsers", Array.from(onlineUsers));
+//   });
+// });
+
+
 io.on("connection", (socket) => {
   socket.on("join", (userId) => {
-    onlineUsers.add(userId);
-    io.emit("onlineUsers", Array.from(onlineUsers));
+    socket.join(userId); // ✅ CRITICAL
+    console.log(`User ${userId} joined their room`);
+  });
+
+  socket.on("sendMessage", ({ receiverId, message }) => {
+    io.to(receiverId).emit("receiveMessage", message);
   });
 
   socket.on("disconnect", () => {
-    onlineUsers.forEach((id) => {
-      if (io.sockets.adapter.rooms.get(id)?.has(socket.id)) {
-        onlineUsers.delete(id);
-      }
-    });
-    io.emit("onlineUsers", Array.from(onlineUsers));
+    console.log("User disconnected:", socket.id);
   });
 });
+
 
 /* ===== Start Server ===== */
 server.listen(PORT, () => {
