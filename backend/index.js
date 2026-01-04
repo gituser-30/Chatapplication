@@ -212,7 +212,13 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/messages", messageRoutes);
 
-app.get("/*", (req, res) => {
+// Serve React static files
+app.use(express.static(path.join(__dirname, "client", "dist")));
+
+// SPA fallback — Express v5 SAFE
+app.use((req, res, next) => {
+  if (req.method !== "GET") return next();
+
   res.sendFile(
     path.resolve(__dirname, "client", "dist", "index.html")
   );
