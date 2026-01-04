@@ -1,6 +1,6 @@
-const express = require("express");
-const Message = require("../models/Message");
-const protect = require("../middleware/authMiddleware");
+import express from "express";
+import Message from "../models/Message.js";
+import protect from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -41,6 +41,9 @@ router.post("/", protect, async (req, res) => {
   }
 });
 
+/**
+ * Clear chat between two users
+ */
 router.delete("/clear/:userId", protect, async (req, res) => {
   try {
     await Message.deleteMany({
@@ -56,4 +59,4 @@ router.delete("/clear/:userId", protect, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
