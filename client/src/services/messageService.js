@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api/messages";
+const API_URL = "https://chatapplication-z7kn.onrender.com/api/messages";
 
 // get messages between logged-in user & selected user
 export const getMessages = async (userId) => {
