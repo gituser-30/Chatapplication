@@ -212,6 +212,13 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/messages", messageRoutes);
 
+app.get("*", (req, res) => {
+  res.sendFile(
+    path.resolve(__dirname, "client", "dist", "index.html")
+  );
+});
+
+
 app.get("/", (req, res) => {
   res.send("chat server is running");
 });
