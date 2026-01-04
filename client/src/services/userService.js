@@ -1,5 +1,5 @@
 import axios from "axios";
-const API_URL = "http://localhost:5000/api/users";
+const API_URL = "https://chatapplication-z7kn.onrender.com/api/users";
 
 // ethun apan sagle user fetch karnar ahot
 export const getUsers = async()=>{
