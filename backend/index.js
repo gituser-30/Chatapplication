@@ -14,7 +14,7 @@ app.use("/api/messages", messageRoutes);
 app.use("/api/users", userRoutes);
 
 mongoose.connect(process.env.MONGO_URI).then(()=>console.log("MongoDB Connected")).catch((err)=>console.log(err));
-import path from "path";
+const path = require("path");
 
 const __dirname = path.resolve();
 
