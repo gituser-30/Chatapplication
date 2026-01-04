@@ -36,7 +36,7 @@ export const clearChat = async (userId) => {
   const token = localStorage.getItem("token");
 
   const response = await axios.delete(
-    `http://localhost:5000/api/messages/clear/${userId}`,
+    `https://chatapplication-z7kn.onrender.com/api/messages/clear/${userId}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
