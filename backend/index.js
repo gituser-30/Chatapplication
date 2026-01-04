@@ -1,89 +1,48 @@
-// =======================
-// Imports (ES Modules)
-// =======================
-import express from "express";
-import mongoose from "mongoose";
-import cors from "cors";
-import dotenv from "dotenv";
-import path from "path";
-import http from "http";
-import { Server } from "socket.io";
-import { fileURLToPath } from "url";
-
-// Routes & Middleware
-import authRoutes from "./routes/authRoutes.js";
-import userRoutes from "./routes/userRoutes.js";
-import messageRoutes from "./routes/messageRoutes.js";
-import protect from "./middleware/authMiddleware.js";
-
-// =======================
-// Config
-// =======================
-dotenv.config();
-
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const authRoutes = require("./routes/authRoutes");
+require("dotenv").config();
+const protect = require("./middleware/authMiddleware");
 const app = express();
-const server = http.createServer(app);
+const userRoutes = require("./routes/userRoutes");
+const messageRoutes = require("./routes/messageRoutes");
 
-// __dirname fix for ES Modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// =======================
-// Middleware
-// =======================
-app.use(cors({
-  origin: "*", // allow Render + frontend
-  methods: ["GET", "POST"]
-}));
+app.use(cors());
 app.use(express.json());
-
-// =======================
-// API Routes
-// =======================
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/users", userRoutes);
+
+mongoose.connect(process.env.MONGO_URI).then(()=>console.log("MongoDB Connected")).catch((err)=>console.log(err));
+
+app.get("/",(req,res)=>{
+    res.send("chat server is running");
+});
 
 app.get("/api/protected", protect, (req, res) => {
   res.json({ message: "You are authorized", userId: req.userId });
 });
 
-// =======================
-// MongoDB
-// =======================
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ MongoDB Connected"))
-  .catch((err) => console.error("❌ Mongo Error:", err));
+app.use("/api/auth",authRoutes);
 
-// =======================
-// Serve React Frontend
-// =======================
-app.use(express.static(path.join(__dirname, "../client/build")));
+const PORT = process.env.PORT || 5000;
+const http = require("http");
+const { Server } = require("socket.io");
 
-app.get(/.*/, (req, res) => {
-  res.sendFile(path.join(__dirname, "../client/build", "index.html"));
-});
+const server = http.createServer(app);
 
-
-// =======================
-// Socket.IO
-// =======================
 const io = new Server(server, {
   cors: {
-    origin: "*",
-    methods: ["GET", "POST"]
-  }
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+  },
 });
-
 let onlineUsers = new Set();
-
 io.on("connection", (socket) => {
-  console.log("🟢 User connected:", socket.id);
-
   socket.on("join", (userId) => {
     onlineUsers.add(userId);
-    io.emit("onlineUsers", [...onlineUsers]);
+
+    io.emit("onlineUsers", Array.from(onlineUsers));
   });
 
   socket.on("disconnect", () => {
@@ -92,15 +51,13 @@ io.on("connection", (socket) => {
         onlineUsers.delete(id);
       }
     });
-    io.emit("onlineUsers", [...onlineUsers]);
-    console.log("🔴 User disconnected:", socket.id);
+
+    io.emit("onlineUsers", Array.from(onlineUsers));
   });
 });
 
-// =======================
-// Server Start
-// =======================
-const PORT = process.env.PORT || 5000;
+
+
 server.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
