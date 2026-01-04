@@ -10,10 +10,18 @@ const router = express.Router();
 router.get("/", protect, async (req, res) => {
   try {
     const users = await User.find({
-      _id: { $ne: req.userId },
-    }).select("-password");
+  _id: { $ne: req.userId },
+})
+  .select("-password")
+  .lean();
 
-    res.json(users);
+const formattedUsers = users.map(user => ({
+  ...user,
+  name: user.fullName, // 👈 mapping
+}));
+
+res.json(formattedUsers);
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
