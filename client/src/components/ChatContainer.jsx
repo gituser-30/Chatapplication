@@ -187,19 +187,25 @@ const ChatContainer = ({ selectedUser, onClearChat, onBlockUser }) => {
      LOAD MESSAGES
      ========================= */
   useEffect(() => {
-    if (!selectedUser) return;
+  if (!selectedUser) return;
 
-    const fetchMessages = async () => {
-      try {
-        const data = await getMessages(selectedUser._id);
-        setMessages(data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
+  const fetchMessages = async () => {
+    try {
+      const data = await getMessages(selectedUser._id);
 
-    fetchMessages();
-  }, [selectedUser]);
+      setMessages((prev) => {
+        // prevent overwriting socket messages
+        if (prev.length === 0) return data;
+        return prev;
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  fetchMessages();
+}, [selectedUser]);
+
 
   /* =========================
      SOCKET SETUP
