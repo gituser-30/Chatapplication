@@ -183,9 +183,25 @@ io.on("connection", (socket) => {
     console.log("User joined room:", userId);
   });
 
-  socket.on("sendMessage", ({ receiverId, message }) => {
+  // socket.on("sendMessage", ({ receiverId, message }) => {
+  //   io.to(receiverId.toString()).emit("receiveMessage", message);
+  // });
+
+   socket.on("sendMessage", async ({ receiverId, message }) => {
+  try {
+    const receiver = await User.findById(receiverId);
+
+    // 🛑 If receiver blocked sender, do not deliver
+    if (receiver.blockedUsers?.includes(message.sender.toString())) {
+      console.log("Message blocked by receiver.");
+      return;
+    }
+
     io.to(receiverId.toString()).emit("receiveMessage", message);
-  });
+  } catch (err) {
+    console.error("Socket message error:", err);
+  }
+});
 
   socket.on("disconnect", () => {
     console.log("Socket disconnected:", socket.id);
