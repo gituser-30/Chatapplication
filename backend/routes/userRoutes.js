@@ -3,6 +3,9 @@ import User from "../models/User.js";
 import protect from "../middleware/authMiddleware.js";
 
 const router = express.Router();
+router.get("/debug", (req, res) => {
+  res.json({ ok: true, message: "userRoutes loaded" });
+});
 
 /**
  * Get all users except logged-in user
