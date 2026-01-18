@@ -32,6 +32,33 @@ res.json(formattedUsers);
 });
 
 // BLOCK USER
+// router.put("/block/:userId", protect, async (req, res) => {
+//   try {
+//     const currentUser = await User.findById(req.userId);
+//     const targetUserId = req.params.userId;
+
+//     if (!currentUser) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+
+//     // prevent duplicate block
+//     if (currentUser.blockedUsers?.includes(targetUserId)) {
+//       return res.status(400).json({ message: "User already blocked" });
+//     }
+
+//     currentUser.blockedUsers = currentUser.blockedUsers || [];
+//     currentUser.blockedUsers.push(targetUserId);
+
+//     await currentUser.save();
+
+//     res.json({ message: "User blocked successfully" });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: "Failed to block user" });
+//   }
+// });
+
+
 router.put("/block/:userId", protect, async (req, res) => {
   try {
     const currentUser = await User.findById(req.userId);
@@ -41,19 +68,27 @@ router.put("/block/:userId", protect, async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // prevent duplicate block
-    if (currentUser.blockedUsers?.includes(targetUserId)) {
+    // FIX: Ensure name exists
+    if (!currentUser.name && currentUser.fullName) {
+      currentUser.name = currentUser.fullName;
+    }
+
+    // FIX: Ensure blockedUsers exists
+    if (!Array.isArray(currentUser.blockedUsers)) {
+      currentUser.blockedUsers = [];
+    }
+
+    if (currentUser.blockedUsers.includes(targetUserId)) {
       return res.status(400).json({ message: "User already blocked" });
     }
 
-    currentUser.blockedUsers = currentUser.blockedUsers || [];
     currentUser.blockedUsers.push(targetUserId);
 
     await currentUser.save();
 
     res.json({ message: "User blocked successfully" });
   } catch (error) {
-    console.error(error);
+    console.error("BLOCK ERROR:", error);
     res.status(500).json({ message: "Failed to block user" });
   }
 });
