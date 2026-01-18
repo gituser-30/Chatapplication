@@ -1,55 +1,38 @@
 import mongoose from "mongoose";
 
-// const userSchema = new mongoose.Schema(
-//   {
-//     name: {
-//       type: String,
-//       required: true,
-//     },
-//     email: {
-//       type: String,
-//       required: true,
-//       unique: true,
-//     },
-//     password: {
-//       type: String,
-//       required: true,
-//     },
-//     avatar: {
-//       type: String,
-//       default: "",
-//     },
-//     blockedUsers: [
-//   {
-//     type: mongoose.Schema.Types.ObjectId,
-//     ref: "User",
-//   },
-// ],
-
-//   },
-//   { timestamps: true }
-// );
-
-
-
-
 const userSchema = new mongoose.Schema(
   {
+    // 👇 Unified name handling (supports old and new users)
     name: {
       type: String,
       default: function () {
-        return this.fullName || "";
+        return this.fullName || ""; // Fallback for old records
       },
     },
 
+    // 👇 Many older users used "fullName"
     fullName: {
       type: String,
     },
 
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    avatar: { type: String, default: "" },
+    // 👇 Required fields
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
 
+    password: {
+      type: String,
+      required: true,
+    },
+
+    avatar: {
+      type: String,
+      default: "",
+    },
+
+    // 👇 Blocked users array
     blockedUsers: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -59,5 +42,6 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-const User = mongoose.model("User", userSchema);
-export default User;
+
+// Export model
+export default mongoose.model("User", userSchema);
